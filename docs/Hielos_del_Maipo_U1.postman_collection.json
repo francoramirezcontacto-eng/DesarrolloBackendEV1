@@ -1,0 +1,311 @@
+{
+  "info": {
+    "name": "Hielos del Maipo | Backend U1",
+    "description": "Colección académica para probar CRUD de SolicitudPedido. Todos los datos son ficticios. Ejecutar sobre servidor local de Laravel.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "solicitud_id",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "01 Crear - POST 201",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/solicitudes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cliente_referencia\": \"Cliente de prueba 01\",\n  \"cantidad\": 8,\n  \"fecha_requerida\": \"2026-11-15\",\n  \"estado\": \"pendiente\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 201', function () { pm.response.to.have.status(201); });",
+              "pm.test('Respuesta JSON', function () { pm.response.to.be.json; });",
+              "pm.collectionVariables.set('solicitud_id', pm.response.json().data.id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Listar - GET 200",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/solicitudes?per_page=10"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Respuesta JSON', function () { pm.response.to.be.json; });",
+              "pm.test('Listado paginado', () => pm.expect(pm.response.json()).to.have.property('data'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Consultar - GET 200",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/solicitudes/{{solicitud_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Respuesta JSON', function () { pm.response.to.be.json; });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Actualizar - PUT 200",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/solicitudes/{{solicitud_id}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cliente_referencia\": \"Cliente de prueba actualizado\",\n  \"cantidad\": 12,\n  \"fecha_requerida\": \"2026-11-20\",\n  \"estado\": \"en_revision\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Respuesta JSON', function () { pm.response.to.be.json; });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Parcial - PATCH 200",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/solicitudes/{{solicitud_id}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"estado\": \"finalizada\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 200', function () { pm.response.to.have.status(200); });",
+              "pm.test('Respuesta JSON', function () { pm.response.to.be.json; });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Error cantidad y estado - POST 422",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/solicitudes",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cliente_referencia\": \"Cliente ficticio\",\n  \"cantidad\": -2,\n  \"fecha_requerida\": \"2026-11-15\",\n  \"estado\": \"despachado\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 422', function () { pm.response.to.have.status(422); });",
+              "pm.test('Respuesta JSON', function () { pm.response.to.be.json; });",
+              "pm.test('Errores de validación', () => { const e=pm.response.json().errors; pm.expect(e).to.have.property('cantidad'); pm.expect(e).to.have.property('estado'); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 Error PUT incompleto - 422",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/solicitudes/{{solicitud_id}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"estado\": \"finalizada\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 422', function () { pm.response.to.have.status(422); });",
+              "pm.test('Respuesta JSON', function () { pm.response.to.be.json; });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Eliminar - DELETE 204",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/solicitudes/{{solicitud_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 204', function () { pm.response.to.have.status(204); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 No encontrado - GET 404",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/api/solicitudes/{{solicitud_id}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('HTTP 404', function () { pm.response.to.have.status(404); });",
+              "pm.test('Respuesta JSON', function () { pm.response.to.be.json; });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    }
+  ]
+}
