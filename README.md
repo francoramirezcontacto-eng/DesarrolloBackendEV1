@@ -2,7 +2,9 @@
 
 Primera API REST de registro de **solicitudes de pedido**, desarrollada como prototipo académico para Desarrollo Backend (IF201IINF). Se utiliza una sola entidad, Laravel 12, Eloquent ORM y SQLite. No es una tienda en línea y no implementa reglas empresariales todavía no validadas.
 
-**Estado de verificación:** el código PHP incluido fue comprobado sintácticamente. El funcionamiento completo de Laravel, sus dependencias y la base de datos **debe ejecutarse y comprobarse en el equipo de los estudiantes** antes de entregar la evaluación. El repositorio no incluye `vendor` ni una instalación completa del framework.
+**Estado de verificación (pruebas locales de la evaluación):** La API se ejecutó con Laravel 12 y SQLite. En Postman se verificaron POST 201, GET 200, PUT 200, DELETE 204 y validación 422. El registro conservó la cantidad actualizada después de reiniciar `php artisan serve`. En PHPUnit se obtuvieron **6 pruebas aprobadas, 30 aserciones**. La comparación local con 60 registros arrojó 12,47 ms sin paginación (60 recuperados) y 0,87 ms al recuperar 10 registros paginados; estas cifras son orientativas y no representan una prueba de carga.
+
+La base de datos local y `vendor` se excluyeron del ZIP por seguridad y tamaño. Las evidencias se encuentran en `Evidencias/` y el informe definitivo en `docs/EVU1_RAMIREZ_FRANCO.pdf`.
 
 ## Requisitos
 
@@ -15,28 +17,24 @@ Documentación oficial: https://laravel.com/docs/12.x/installation
 
 ## Instalación (Windows, PowerShell)
 
-1. Crear una instalación limpia del framework en una carpeta de trabajo:
+El proyecto ya incluye los archivos fuente de Laravel. Para ejecutarlo desde este ZIP o desde GitHub:
+
+1. Descomprimir los archivos en una carpeta local con ruta corta (por ejemplo `C:\BackendU1\hielos-backend`) y abrir PowerShell desde la carpeta que contiene `artisan` y `composer.json`.
+2. Instalar dependencias con Composer (requiere PHP 8.2+ y extensiones habituales, en particular `pdo_sqlite`):
 
    ```powershell
-   composer create-project laravel/laravel hielos-backend "^12.0"
-   cd hielos-backend
+   composer install
    ```
 
-2. **Copiar el contenido de este paquete a la raíz `hielos-backend`**, reemplazando cuando corresponda `bootstrap/app.php`; se conservan los otros archivos creados por Laravel (`artisan`, `composer.json`, `config/`, `vendor/`, `public/`, `tests/TestCase.php`, etc.). No copiar una carpeta contenedora dentro de otra.
-
-3. Revisar que la extensión `pdo_sqlite` esté disponible (`php -m`). Crear el archivo de base de datos:
+3. Crear la configuración local, clave de aplicación y archivo SQLite:
 
    ```powershell
+   Copy-Item .env.example .env
+   php artisan key:generate
    New-Item -ItemType File -Force database/database.sqlite
    ```
 
-4. Revisar el `.env` que generó Laravel, configurar `DB_CONNECTION=sqlite` y `DB_DATABASE` con la ruta absoluta de `database.sqlite` si tu instalación lo necesita. El archivo `.env.evaluacion.example` aporta valores de referencia. **No reemplazar accidentalmente el `APP_KEY` generado por Laravel**. En caso de no existir:
-
-   ```powershell
-   php artisan key:generate
-   ```
-
-5. Crear las tablas y arrancar la API:
+4. Revisar que `.env` tenga `DB_CONNECTION=sqlite`. Ejecutar las migraciones y el servidor:
 
    ```powershell
    php artisan migrate
@@ -44,15 +42,14 @@ Documentación oficial: https://laravel.com/docs/12.x/installation
    php artisan serve
    ```
 
-6. En Postman abrir `docs/Hielos_del_Maipo_U1.postman_collection.json`, ejecutar peticiones con `http://127.0.0.1:8000`. Los mensajes deben enviarse como JSON e incluir `Accept: application/json`.
-
-7. Para ejecutar pruebas automáticas en un **segundo terminal**:
+5. Importar `docs/Hielos_del_Maipo_U1.postman_collection.json` en Postman y enviar solicitudes JSON a `http://127.0.0.1:8000`, incluyendo `Accept: application/json`.
+6. En otra terminal, ejecutar:
 
    ```powershell
    php artisan test --filter=SolicitudPedidoApiTest
    ```
 
-   Los tests usan `RefreshDatabase`; en entornos de prueba Laravel puede trabajar con una base de datos separada. No ejecutar `migrate:fresh` contra datos importantes.
+Las pruebas automatizadas usan `RefreshDatabase`; no ejecutar `migrate:fresh` sobre bases de datos con información importante. No exponer la API a Internet: no incluye autenticación para producción.
 
 ## Comprobar persistencia tras reiniciar
 
@@ -121,9 +118,14 @@ Las credenciales y la clave APP_KEY permanecen en `.env` fuera de Git; el acceso
 5. ¿Quién puede consultar, registrar, cambiar o anular las solicitudes?
 6. ¿Qué relación deberá tener un pedido con producción, stock y reparto en una fase posterior?
 
-## Evidencias mínimas para entregar
+## Evidencias incluidas
 
-Consultar `docs/EVIDENCIAS_Y_COMPROBACIONES.md` y completar el informe técnico con resultados reales. Adjuntar código fuente completo del proyecto Laravel junto a su `composer.json` y `composer.lock` generados, pero sin `/vendor`, `.env` ni base de datos con datos sensibles.
+- `Evidencias/`: capturas de consultas HTTP, validaciones, persistencia, rendimiento y PHPUnit.
+- `docs/EVU1_RAMIREZ_FRANCO.pdf`: informe técnico definitivo de la evaluación, con las principales capturas y resultados observados.
+- `docs/Hielos_del_Maipo_U1.postman_collection.json`: colección para repetir las solicitudes HTTP.
+- `database/migrations/` y `tests/Feature/SolicitudPedidoApiTest.php`: migración y pruebas automáticas.
+
+Se omitieron deliberadamente `.env`, `vendor` y `database/database.sqlite`, dado que el código y las migraciones permiten recrear el proyecto de forma local.
 
 ## Uso de IA
 
